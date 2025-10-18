@@ -9,7 +9,7 @@ import (
 	"github.com/rs/cors"
 )
 
-// TODO: validation and logging	
+// TODO: logging
 
 func main() {
 	mux := http.NewServeMux()
@@ -49,9 +49,6 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 
 	sum := p.N1 + p.N2
 
-	log.Println("Received add request")
-	log.Printf("Adding %d and %d to get %d\n", p.N1, p.N2, sum)
-
 	writeJSONResponse(w, sum)
 }
 
@@ -68,9 +65,6 @@ func multiplyHandler(w http.ResponseWriter, r *http.Request) {
 
 	res := p.N1 * p.N2
 
-	log.Println("Received multiply request")
-	log.Printf("Multiplying %d and %d to get %d\n", p.N1, p.N2, res)
-
 	writeJSONResponse(w, res)
 }
 
@@ -85,10 +79,12 @@ func divisionHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	res := p.N1 / p.N2
+	if p.N2 == 0 {
+		http.Error(w, "divisor cannot be 0", http.StatusBadRequest)
+		return
+	}
 
-	log.Println("Received division request")
-	log.Printf("Dividing %d by %d to get %d\n", p.N1, p.N2, res)
+	res := p.N1 / p.N2
 
 	writeJSONResponse(w, res)
 }
@@ -105,9 +101,6 @@ func subtractHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	res := p.N1 - p.N2
-
-	log.Println("Received division request")
-	log.Printf("Subtracting %d by %d to get %d\n", p.N1, p.N2, res)
 
 	writeJSONResponse(w, res)
 }
@@ -138,9 +131,6 @@ func sumHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-
-	log.Println("Received sum request")
-	log.Printf("%s = %d", sumStr, sum)
 
 	writeJSONResponse(w, int(sum))
 }
