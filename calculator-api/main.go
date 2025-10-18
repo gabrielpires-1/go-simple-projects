@@ -143,6 +143,8 @@ func sumHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func decodeJSON[T any](w http.ResponseWriter, r *http.Request) (T, bool) {
+	defer r.Body.Close()
+
 	var v T
 
 	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
