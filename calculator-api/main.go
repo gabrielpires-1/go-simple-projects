@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/rs/cors"
@@ -27,11 +29,19 @@ func main() {
 		AllowCredentials: true,
 	})
 
-	handler := c.Handler(mux)
+	corsHandler := c.Handler(mux)
 
-	log.Println("Server started on port :3000")
+	finalHandler := loggingMiddleware(corsHandler)
 
-	if err := http.ListenAndServe(":3000", handler); err != nil {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
+
+	slog.SetDefault(logger)
+
+	logger.Info("Server started on port :3000")
+
+	if err := http.ListenAndServe(":3000", finalHandler); err != nil {
 		log.Fatalf("could not start server: %v\n", err)
 	}
 }
