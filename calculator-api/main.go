@@ -49,9 +49,8 @@ func main() {
 func addHandler(w http.ResponseWriter, r *http.Request) {
 	var p addPayload
 
-	err := json.NewDecoder(r.Body).Decode(&p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	p, ok := decodeJSON[addPayload](w, r)
+	if !ok {
 		return
 	}
 
@@ -65,9 +64,8 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 func multiplyHandler(w http.ResponseWriter, r *http.Request) {
 	var p multiplyPayload
 
-	err := json.NewDecoder(r.Body).Decode(&p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	p, ok := decodeJSON[multiplyPayload](w, r)
+	if !ok {
 		return
 	}
 
@@ -81,9 +79,8 @@ func multiplyHandler(w http.ResponseWriter, r *http.Request) {
 func divisionHandler(w http.ResponseWriter, r *http.Request) {
 	var p divisionPayload
 
-	err := json.NewDecoder(r.Body).Decode(&p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	p, ok := decodeJSON[divisionPayload](w, r)
+	if !ok {
 		return
 	}
 
@@ -104,9 +101,8 @@ func divisionHandler(w http.ResponseWriter, r *http.Request) {
 func subtractHandler(w http.ResponseWriter, r *http.Request) {
 	var p addPayload
 
-	err := json.NewDecoder(r.Body).Decode(&p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	p, ok := decodeJSON[addPayload](w, r)
+	if !ok {
 		return
 	}
 
@@ -120,9 +116,8 @@ func subtractHandler(w http.ResponseWriter, r *http.Request) {
 func sumHandler(w http.ResponseWriter, r *http.Request) {
 	var p sumPayload
 
-	err := json.NewDecoder(r.Body).Decode(&p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	p, ok := decodeJSON[sumPayload](w, r)
+	if !ok {
 		return
 	}
 
@@ -145,4 +140,19 @@ func sumHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSONResponseSuccess(w, int(sum))
+}
+
+func decodeJSON[T any](w http.ResponseWriter, r *http.Request) (T, bool) {
+	var v T
+
+	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
+		apiErr := ErrorResponse{
+			Code:    "INVALID_REQUEST_BODY",
+			Message: "Body couldn't be decoded: " + err.Error(),
+		}
+		writeJSONResquestFailed(w, apiErr, http.StatusBadRequest)
+		return v, false
+	}
+
+	return v, true
 }
