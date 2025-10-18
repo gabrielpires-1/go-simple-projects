@@ -59,7 +59,7 @@ func addHandler(w http.ResponseWriter, r *http.Request) {
 
 	sum := p.N1 + p.N2
 
-	writeJSONResponse(w, sum)
+	writeJSONResponseSuccess(w, sum)
 }
 
 func multiplyHandler(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +75,7 @@ func multiplyHandler(w http.ResponseWriter, r *http.Request) {
 
 	res := p.N1 * p.N2
 
-	writeJSONResponse(w, res)
+	writeJSONResponseSuccess(w, res)
 }
 
 func divisionHandler(w http.ResponseWriter, r *http.Request) {
@@ -90,13 +90,15 @@ func divisionHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	if p.N2 == 0 {
-		http.Error(w, "divisor cannot be 0", http.StatusBadRequest)
+		// TODO: implement request id
+		err := ErrorResponse{RequestID: "123", Message: "Divisor cannot be 0.", Code: "DIVISION_BY_ZERO"}
+		writeJSONResquestFailed(w, err, 400)
 		return
 	}
 
 	res := p.N1 / p.N2
 
-	writeJSONResponse(w, res)
+	writeJSONResponseSuccess(w, res)
 }
 
 func subtractHandler(w http.ResponseWriter, r *http.Request) {
@@ -112,7 +114,7 @@ func subtractHandler(w http.ResponseWriter, r *http.Request) {
 
 	res := p.N1 - p.N2
 
-	writeJSONResponse(w, res)
+	writeJSONResponseSuccess(w, res)
 }
 
 func sumHandler(w http.ResponseWriter, r *http.Request) {
@@ -142,5 +144,5 @@ func sumHandler(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	writeJSONResponse(w, int(sum))
+	writeJSONResponseSuccess(w, int(sum))
 }

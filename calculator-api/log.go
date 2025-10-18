@@ -8,8 +8,7 @@ import (
 
 type loggingResponseWriter struct {
 	http.ResponseWriter
-	status int
-}
+	status int}
 
 func (lrw *loggingResponseWriter) WriteHeader(status int) {
 	lrw.status = status
