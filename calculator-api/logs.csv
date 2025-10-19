@@ -1,0 +1,5 @@
+POST,/multiply,400,63.119µs
+POST,/multiply,200,44.835µs
+POST,/add,200,49.173µs
+POST,/subtract,200,23.446µs
+POST,/sum,200,21.919µs

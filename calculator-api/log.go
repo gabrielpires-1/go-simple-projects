@@ -1,14 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 )
 
 type loggingResponseWriter struct {
 	http.ResponseWriter
-	status int}
+	status int
+}
 
 func (lrw *loggingResponseWriter) WriteHeader(status int) {
 	lrw.status = status
@@ -25,12 +28,32 @@ func loggingMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(lw, r)
 
-		logger.Info(
-			"Requisição processada",
-			slog.String("method", r.Method),
-			slog.String("path", r.URL.Path),
-			slog.Int("status", lw.status),
-			slog.Duration("latency", time.Since(start)),
+		logStr := fmt.Sprintf("%s,%s,%d,%s\n", r.Method, r.URL.Path, lw.status, time.Since(start))
+
+		logger.Info("Request handled",
+			"method", r.Method,
+			"path", r.URL.Path,
+			"status", lw.status,
+			"latency", time.Since(start),
 		)
+
+		writeLog(logStr)
 	})
+}
+
+func writeLog(msg string) (int, error) {
+	f, err := os.OpenFile("logs.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		slog.Error("Failed to open log file", "error", err)
+		return 0, err
+	}
+
+	defer f.Close()
+
+	n, err := f.Write([]byte(msg))
+	if err != nil {
+		return 0, fmt.Errorf("error occurred while writing: %w", err)
+	}
+
+	return n, nil
 }
