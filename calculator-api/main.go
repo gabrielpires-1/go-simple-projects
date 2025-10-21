@@ -11,8 +11,6 @@ import (
 	"github.com/rs/cors"
 )
 
-// TODO: logging
-
 func main() {
 	mux := http.NewServeMux()
 

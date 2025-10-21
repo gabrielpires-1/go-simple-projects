@@ -37,7 +37,12 @@ func loggingMiddleware(next http.Handler) http.Handler {
 			"latency", time.Since(start),
 		)
 
-		writeLog(logStr)
+		go func(logMessage string) {
+			_, err := writeLog(logMessage)
+			if err != nil {
+				slog.Error("Failed to write log asynchronously", "error", err)
+			}
+		}(logStr)
 	})
 }
 
