@@ -37,6 +37,7 @@ func loggingMiddleware(next http.Handler) http.Handler {
 			"latency", time.Since(start),
 		)
 
+		// TODO: use channels
 		go func(logMessage string) {
 			_, err := writeLog(logMessage)
 			if err != nil {
